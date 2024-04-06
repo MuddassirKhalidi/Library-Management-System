@@ -266,7 +266,7 @@ def show_data(data, query):
 # Function to check for late returns and update penalties
 def check_library():
     """Check for late returns and update penalties."""
-    query = 'SELECT studentid FROM borrows WHERE return_date < CURRENT_DATE'
+    query = 'SELECT studentid FROM borrows WHERE (return_date < CURRENT_DATE AND returned = False)'
     cursor.execute(query)
     studentids = [id[0] for id in cursor.fetchall()]
     if studentids:
@@ -290,7 +290,7 @@ def send_emails():
         FROM borrows
         JOIN student AS s ON borrows.studentid = s.studentid
         JOIN book AS b ON b.bookid = borrows.bookid
-        WHERE borrows.return_date < CURRENT_DATE
+        WHERE (borrows.return_date < CURRENT_DATE AND borrows.returned = False)
     '''
     cursor.execute(query)
     data = cursor.fetchall()

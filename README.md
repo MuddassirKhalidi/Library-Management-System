@@ -18,7 +18,7 @@ This repository contains a Python module for managing a library system. The modu
 - [psycopg2](https://pypi.org/project/psycopg2/): PostgreSQL database adapter for Python.
 - [Levenshtein](https://pypi.org/project/python-Levenshtein/): Calculates Levenshtein distance between strings.
 - [tabulate](https://pypi.org/project/tabulate/): Pretty prints tabular data.
-- [email_with_python](git@github.com:MuddassirKhalidi/Email-Sender-Python.git): Module for sending emails.
+- [email_with_python](https://github.com/MuddassirKhalidi/Email-Sender-Python): Module for sending emails.
 
 ## Usage
 

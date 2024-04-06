@@ -343,10 +343,10 @@ def library_page():
 3. Back''')
 
 try:
-    connection = pg2.connect(dbname='library',
-                             user='muddassirkhalidi',
-                             password='Mjkt260421pgadmin',
-                             host='localhost',
+    connection = pg2.connect(dbname='your_db_name',
+                             user='user_name',
+                             password='your_password',
+                             host='host',
                              port=5432
                              )
     cursor = connection.cursor()

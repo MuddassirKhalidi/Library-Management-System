@@ -63,7 +63,7 @@ def add_book():
     cursor.execute(insert_query, data)
     connection.commit()
 
-    print("Book data added!")
+    print("Book has been added!")
 
 # Main function to remove a book from the database
 def remove_book(bookid):

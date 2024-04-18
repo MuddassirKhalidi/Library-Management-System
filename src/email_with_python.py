@@ -8,7 +8,7 @@ The 'EmailSender' establishes an SMTP connection, logging in, and sending emails
 Usage:
 - Import the 'EmailSender' class into your scripts for email-related functionality.
 - Ensure the 'smtplib' library is available in your Python environment.
-
+- When logging in, use the App password to your Gmail
 Example:
     from email_with_python import EmailSender
 
@@ -27,7 +27,6 @@ Date: 15 January 2024
 import smtplib
 import getpass
 import re
-import csv
 import sys
 
 class EmailSender:
@@ -59,7 +58,7 @@ class EmailSender:
         """
         while True:
             try:
-                email = _is_valid_email("Enter your email: ")
+                email = get_email()
                 password = getpass.getpass('Enter your password: ')
                 self.smtp_object.login(email, password)
             except smtplib.SMTPAuthenticationError:
@@ -69,179 +68,124 @@ class EmailSender:
 
     def close_connection(self):
         """Close the SMTP connection."""
-        self.smtp_object.quit()             
+        self.smtp_object.quit() 
 
-def _get_file_data():
+def is_valid_email(email):
     """
-    Read data from a CSV file and return it as a list.
-
-    Returns:
-        list: A list containing the data read from the CSV file.
+    Validate the format of the email using regular expressions.
     """
-    while True:
-        try:
-            file_name = input('Enter file path: ')
-            with open(file_name, mode='r', encoding='utf-8') as csv_file:
-                csv_data = list(csv.reader(csv_file))
-        except FileNotFoundError:
-            print('File not found. Please try again.')
-        else:
-            return csv_data
+    # Regular expression pattern for validating email
+    pattern = r'^\w+@[a-zA-Z]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email)
 
-def _get_email_column(data):
+def send_to_one_user(email: str):
     """
-    Find the column index containing email addresses in the CSV data.
-
-    Args:
-        data (list): The CSV data as a list.
-
-    Returns:
-        int or None: The index of the email column, or None if not found.
+    Sends an email to one recipient
     """
-    email_types = ['emails', 'email address', 'email addresses', 'email']
-    for column_number in range(len(data[0])):
-        if data[0][column_number].lower().strip() in email_types:
-            return column_number
-    return None
-
-def _get_name_column(data):
-    """
-    Find the column index containing names in the CSV data.
-
-    Args:
-        data (list): The CSV data as a list.
-
-    Returns:
-        int or None: The index of the name column, or None if not found.
-    """
-    name_types = ['name', 'names']
-    for column_number in range(len(data[0])):
-        if data[0][column_number].lower().strip() in name_types:
-            return column_number
-    return None
-
-def _get_mailing_list():
-    """
-    Extract a mailing list from the CSV data, consisting of name and email pairs.
-
-    Returns:
-        list or None: A list of tuples (name, email) or None if no suitable columns are found.
-    """
-    data = _get_file_data()
-    email_column = _get_email_column(data)
-    name_column = _get_name_column(data)
-    mailing_list = []
-    if name_column is not None:
-        if email_column is not None:
-            # If both name and email columns are found
-            for row in range(1, len(data)):
-                mailing_list.append((data[row][name_column], data[row][email_column]))
-    elif email_column is not None:
-        # If only the email column is found
-        mailing_list = [data[row][email_column] for row in range(1, len(data))]
-    elif name_column is not None:
-        # If only the name column is found
-        return None
-    return mailing_list
-
-def _send_email_with_name(mailing_list):
-    """
-    Send personalized emails to recipients with names.
-
-    Args:
-        mailing_list (list): A list of tuples (name, email).
-    """
-    subject = input('Enter the subject: ').upper()
-    content = input("Enter your message (Press Enter twice to exit): ") + '\n'
-    while True:
-        line = input()
-        if not line:
-            break
-        line += '\n'
-        content += line
-    for name, receiver_email in mailing_list:
-        message = f'Subject: {subject} \nDear {name} \n{content}'
-        admin.smtp_object.sendmail(admin_email, receiver_email, message)
-    print('Email sent!')
-    print('-' * 50)
-
-def _send_email_without_name(mailing_list):
-    """
-    Send generic emails to recipients without names.
-
-    Args:
-        mailing_list (list): A list of email addresses.
-    """
-    subject = input('Enter the subject: ').upper()
-    content = input("Enter your message (Press Enter twice to exit): ") + '\n'
-    while True:
-        line = input()
-        if not line:
-            break
-        line += '\n'
-        content += line
+    subject = get_subject()
+    content = get_content_for_one_user()
     message = f'Subject: {subject} \n{content}'
-    for receiver_email in mailing_list:
-        admin.smtp_object.sendmail(admin_email, receiver_email, message)
+    admin.smtp_object.sendmail(admin_email, email, message)
     print('Email sent!')
-    print('-' * 50)
 
-def _is_valid_email(message):
+
+def send_to_group(name_list: list, email_list: list, *custom_lists: list):
     """
-    Checks the validity of the email using regex.
+    Instructions for Entering Email Message:
 
-    Args:
-        message (str): The prompt message to get the email.
+When composing your email message, follow this format:
 
-    Returns:
-        str: A valid email address.
-    """
-    pattern = r'\w+@[A-z]+\.*[a-z]*\.[a-z]*'
+1. Start your message with a salutation, addressing the recipient by name:
+   Example: Dear {name},
+
+2. Use placeholders enclosed in curly braces {} to represent dynamic content.
+   - Replace "{name}" with the recipient's name.
+   - Use "{custom1}", "{custom2}", etc., to denote custom values from your provided lists.
+
+3. Ensure that each placeholder corresponds to an item in the respective lists:
+   - {name}: Refers to the recipient's name from the provided 'names' list.
+   - {custom1}, {custom2}, etc.: Correspond to values from the custom lists provided.
+
+4. Maintain clear and concise wording for clarity and professionalism.
+   - Avoid excessive formatting or unnecessary details.
+
+5. Conclude your message with a polite closing, such as "Thank you!" or "Best regards,".
+
+Example Email Message Format:
+---------------------------------
+Dear {name},
+
+This is your {custom1} for your {custom2} and this will be your {custom3}.
+
+Thank you!
+---------------------------------
+
+Follow these instructions to create personalized email messages using the provided lists effectively.
+"""
+    input_lengths = [len(name_list), len(email_list)] + [len(lst) for lst in custom_lists]
+    if len(set(input_lengths)) != 1:
+        raise ValueError("Input lists must have the same length.")
+    print("Enter your message below (Press Enter twice to finish):")
+    message_lines = []
     while True:
-        try:
-            email = input(message)
-            if not re.match(pattern, email):
-                raise ValueError
-        except ValueError:
-            print('Enter a valid email')
-        else:
-            return email
+        line = input()
+        if not line:
+            break
+        message_lines.append(line)
 
+    # Combine the lines into a single message
+    message = '\n'.join(message_lines)
 
-def send_to_one_user():
+    messages = []
+    try:
+        for items in zip(name_list, *custom_lists):
+            # Format the message template with the current items
+            name = items[0]
+            custom_items = {f'custom{i+1}': item for i, item in enumerate(items[1:])}
+
+            formatted_message = message.format(name=name, **custom_items)
+            messages.append(formatted_message)
+
+    except KeyError as error:
+        print(f"Error: Placeholder {error} is missing from the message template.")
+    subject = get_subject()
+    for email, message in zip(email_list, messages):
+        final_message = f'Subject: {subject} \n{message}'
+        admin.smtp_object.sendmail(admin_email, email, final_message)
+        print('Email sent!')
+        
+def get_email():
     """
-    Get email content and send it to a specified recipient.
-
-    Args:
-        admin (EmailSender): An instance of the EmailSender class.
-        admin_email (str): The administrator's email address.
+    Gets the email of the user, validates it and returns it
     """
-    receivers_email = _is_valid_email("Enter receiver's email: ")
-    subject = input('Enter the subject: ').upper()
-    content = input('Enter the message (Press Enter twice to exit): ') + '\n'
+    email = input('Enter email: ')
+    while not is_valid_email(email):
+        print('Enter a valid email')
+        print('-'*50)
+        email = input('Enter email')
+    
+    return email
+
+def get_subject():
+    """"
+    Returns the subject of the email
+    """
+    subject = input('Enter subject: ')
+    return subject
+
+def get_content_for_one_user():
+    """
+    Returns the content of the email
+    """
+    content = input('Enter message: ') + '\n'
     while True:
         line = input()
         if not line:
             break
         line += '\n'
         content += line
-    message = f'Subject: {subject}\n{content}'
-    admin.smtp_object.sendmail(admin_email, receivers_email, message)
-    print('Email sent!')
-    print('-' * 50)
-
-def send_email_to_group():
-    """
-    Main function to send emails based on user input.
-    """
-    mailing_list = _get_mailing_list()
-
-    if mailing_list and isinstance(mailing_list[0], tuple):
-        _send_email_with_name(mailing_list)
-    elif mailing_list and not isinstance(mailing_list[0], tuple):
-        _send_email_without_name(mailing_list)
-    else:
-        print('No Emails Found!')
+    
+    return content
 
 
 if __name__ == '__main__':
@@ -253,9 +197,13 @@ if __name__ == '__main__':
         while email_type not in ['1','2']:
             email_type = input('Enter a valid choice: ')
         if email_type == '1':
-            send_to_one_user()
+            send_to_one_user('muddassirnawazkhan@gmail.com')
         else:
-            send_email_to_group()
+            names = ['Muddassir', 'Andre Stephens']
+            emails = ['muddassirnawazkhan@gmail.com', 'andrestephens2604@gmail.com']
+            penalties = [100, 200]
+            released = ['Released','Not Released']
+            send_to_group(names, emails, penalties, released)
         choice = input('Do you want to send another email? [y/n]: ').lower().strip()
         while choice not in ['y', 'n']:
             choice = input('Enter a valid choice [y/n]: ')

@@ -78,7 +78,7 @@ def is_valid_email(email):
     pattern = r'^\w+@[a-zA-Z]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email)
 
-def send_to_one_user(email: str):
+def send_to_one_user(admin, admin_email, email: str):
     """
     Sends an email to one recipient
     """
@@ -89,7 +89,7 @@ def send_to_one_user(email: str):
     print('Email sent!')
 
 
-def send_to_group(name_list: list, email_list: list, *custom_lists: list):
+def send_to_group(admin, admin_email, name_list: list, email_list: list, *custom_lists: list):
     """
     Instructions for Entering Email Message:
 
@@ -197,13 +197,13 @@ if __name__ == '__main__':
         while email_type not in ['1','2']:
             email_type = input('Enter a valid choice: ')
         if email_type == '1':
-            send_to_one_user('muddassirnawazkhan@gmail.com')
+            send_to_one_user(admin, admin_email, 'muddassirnawazkhan@gmail.com')
         else:
             names = ['Muddassir', 'Andre Stephens']
             emails = ['muddassirnawazkhan@gmail.com', 'andrestephens2604@gmail.com']
             penalties = [100, 200]
             released = ['Released','Not Released']
-            send_to_group(names, emails, penalties, released)
+            send_to_group(admin, admin_email, names, emails, penalties, released)
         choice = input('Do you want to send another email? [y/n]: ').lower().strip()
         while choice not in ['y', 'n']:
             choice = input('Enter a valid choice [y/n]: ')

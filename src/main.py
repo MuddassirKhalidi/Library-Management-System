@@ -38,6 +38,7 @@ from tabulate import tabulate
 import psycopg2 as pg2
 from email_with_python import EmailSender
 
+
 # Function to add a new book to the database
 def add_book():
     """Add a new book to the database."""

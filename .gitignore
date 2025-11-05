@@ -1,0 +1,11 @@
+backend/.env
+backend/library_system/__pycache__/
+backend/library_system/models/__pycache__/
+backend/library_system/services/__pycache__/
+backend/library_system/utils/__pycache__/
+backend/library_system/database/__pycache__/
+frontend/.env
+backend/venv
+frontend/venv
+backend/__pycache__
+frontend/__pycache__

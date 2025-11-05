@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Library Management System</h1>
+            <p class="subtitle">Complete library operations management</p>
+        </header>
+
+        <!-- Login Section -->
+        <div id="login-section" class="login-section">
+            <div class="login-card">
+                <h2>Login</h2>
+                <p class="login-hint">Login as librarian/administrator to access administrative functions</p>
+                <div class="form-group">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" placeholder="librarian@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password:</label>
+                    <input type="password" id="login-password" placeholder="Enter password">
+                </div>
+                <button onclick="login()" class="btn btn-primary">Login</button>
+                <div id="login-error" class="error" style="display: none;"></div>
+            </div>
+            <div class="user-info" id="user-info" style="display: none;">
+                <p><strong>Logged in as:</strong> <span id="logged-in-user"></span></p>
+                <p><strong>Role:</strong> <span id="logged-in-role"></span></p>
+                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+
+        <div class="api-config">
+            <label for="apiUrl">API Base URL:</label>
+            <input type="text" id="apiUrl" value="http://localhost:8000" placeholder="http://localhost:8000">
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('books')">Books</button>
+            <button class="tab-button" onclick="showTab('members')">Members</button>
+            <button class="tab-button" onclick="showTab('loans')">Loans</button>
+            <button class="tab-button" onclick="showTab('reservations')">Reservations</button>
+        </div>
+
+        <!-- Books Tab -->
+        <div id="books-tab" class="tab-content active">
+            <div class="section-header">
+                <h2>Books</h2>
+                <div class="button-group">
+                    <button onclick="getAllBooks()" class="btn btn-primary">Get All Books</button>
+                    <button onclick="showSearchBooks()" class="btn btn-secondary">Search Books</button>
+                    <button onclick="showCreateBookForm()" class="btn btn-success" id="create-book-btn" style="display: none;">Create Book</button>
+                </div>
+            </div>
+
+            <!-- Create Book Form -->
+            <div id="create-book-form" class="form-card" style="display: none;">
+                <h3>Create New Book</h3>
+                <div class="form-grid">
+                    <div>
+                        <label for="book-isbn">ISBN *:</label>
+                        <input type="text" id="book-isbn" required>
+                    </div>
+                    <div>
+                        <label for="book-title">Title *:</label>
+                        <input type="text" id="book-title" required>
+                    </div>
+                    <div>
+                        <label for="book-publisher">Publisher:</label>
+                        <input type="text" id="book-publisher">
+                    </div>
+                    <div>
+                        <label for="book-year">Published Year:</label>
+                        <input type="number" id="book-year">
+                    </div>
+                    <div class="full-width">
+                        <label for="book-description">Description:</label>
+                        <textarea id="book-description" rows="3"></textarea>
+                    </div>
+                    <div>
+                        <label for="book-author-ids">Author IDs (comma-separated):</label>
+                        <input type="text" id="book-author-ids" placeholder="1,2,3">
+                    </div>
+                    <div>
+                        <label for="book-category-ids">Category IDs (comma-separated):</label>
+                        <input type="text" id="book-category-ids" placeholder="1,2,3">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button onclick="createBook()" class="btn btn-primary">Create Book</button>
+                    <button onclick="hideCreateBookForm()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Update Book Form -->
+            <div id="update-book-form" class="form-card" style="display: none;">
+                <h3>Update Book</h3>
+                <input type="hidden" id="update-book-id">
+                <div class="form-grid">
+                    <div>
+                        <label for="update-book-isbn">ISBN:</label>
+                        <input type="text" id="update-book-isbn">
+                    </div>
+                    <div>
+                        <label for="update-book-title">Title:</label>
+                        <input type="text" id="update-book-title">
+                    </div>
+                    <div>
+                        <label for="update-book-publisher">Publisher:</label>
+                        <input type="text" id="update-book-publisher">
+                    </div>
+                    <div>
+                        <label for="update-book-year">Published Year:</label>
+                        <input type="number" id="update-book-year">
+                    </div>
+                    <div class="full-width">
+                        <label for="update-book-description">Description:</label>
+                        <textarea id="update-book-description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button onclick="updateBook()" class="btn btn-primary">Update Book</button>
+                    <button onclick="hideUpdateBookForm()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Search Books Form -->
+            <div id="search-books-form" class="search-form" style="display: none;">
+                <h3>Search Books</h3>
+                <div class="form-grid">
+                    <div>
+                        <label for="search-isbn">ISBN:</label>
+                        <input type="text" id="search-isbn" placeholder="e.g., 978-0-123456-78-9">
+                    </div>
+                    <div>
+                        <label for="search-title">Title:</label>
+                        <input type="text" id="search-title" placeholder="e.g., Harry Potter">
+                    </div>
+                    <div>
+                        <label for="search-author">Author:</label>
+                        <input type="text" id="search-author" placeholder="e.g., J.K. Rowling">
+                    </div>
+                    <div>
+                        <label for="search-category">Category:</label>
+                        <input type="text" id="search-category" placeholder="e.g., Fantasy">
+                    </div>
+                </div>
+                <button onclick="searchBooks()" class="btn btn-primary">Search</button>
+                <button onclick="hideSearchBooks()" class="btn btn-secondary">Cancel</button>
+            </div>
+
+            <div id="books-results" class="results"></div>
+        </div>
+
+        <!-- Members Tab -->
+        <div id="members-tab" class="tab-content">
+            <div class="section-header">
+                <h2>Members</h2>
+                <div class="button-group">
+                    <button onclick="getAllMembers()" class="btn btn-primary">Get All Members</button>
+                    <button onclick="showRegisterMemberForm()" class="btn btn-success" id="register-member-btn" style="display: none;">Register Member</button>
+                </div>
+            </div>
+
+            <!-- Register Member Form -->
+            <div id="register-member-form" class="form-card" style="display: none;">
+                <h3>Register New Member</h3>
+                <div class="form-grid">
+                    <div>
+                        <label for="member-name">Name *:</label>
+                        <input type="text" id="member-name" required>
+                    </div>
+                    <div>
+                        <label for="member-email">Email *:</label>
+                        <input type="email" id="member-email" required>
+                    </div>
+                    <div>
+                        <label for="member-phone">Phone:</label>
+                        <input type="text" id="member-phone">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button onclick="registerMember()" class="btn btn-primary">Register Member</button>
+                    <button onclick="hideRegisterMemberForm()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Update Member Form -->
+            <div id="update-member-form" class="form-card" style="display: none;">
+                <h3>Update Member</h3>
+                <input type="hidden" id="update-member-id">
+                <div class="form-grid">
+                    <div>
+                        <label for="update-member-name">Name:</label>
+                        <input type="text" id="update-member-name">
+                    </div>
+                    <div>
+                        <label for="update-member-email">Email:</label>
+                        <input type="email" id="update-member-email">
+                    </div>
+                    <div>
+                        <label for="update-member-phone">Phone:</label>
+                        <input type="text" id="update-member-phone">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button onclick="updateMember()" class="btn btn-primary">Update Member</button>
+                    <button onclick="hideUpdateMemberForm()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+
+            <div id="members-results" class="results"></div>
+        </div>
+
+        <!-- Loans Tab -->
+        <div id="loans-tab" class="tab-content">
+            <div class="section-header">
+                <h2>Loans</h2>
+                <div class="button-group">
+                    <button onclick="getAllLoans()" class="btn btn-primary">Get All Loans</button>
+                    <button onclick="getActiveLoans()" class="btn btn-secondary">Get Active Loans</button>
+                    <button onclick="getOverdueLoans()" class="btn btn-warning">Get Overdue Loans</button>
+                    <button onclick="showIssueBookForm()" class="btn btn-success" id="issue-book-btn" style="display: none;">Issue Book</button>
+                    <button onclick="showReturnBookForm()" class="btn btn-info" id="return-book-btn" style="display: none;">Return Book</button>
+                    <button onclick="updateOverdueLoans()" class="btn btn-warning" id="update-overdue-btn" style="display: none;">Update Overdue Loans</button>
+                </div>
+            </div>
+
+            <!-- Issue Book Form -->
+            <div id="issue-book-form" class="form-card" style="display: none;">
+                <h3>Issue Book to Member</h3>
+                <div class="form-grid">
+                    <div>
+                        <label for="issue-member-id">Member ID *:</label>
+                        <input type="number" id="issue-member-id" required>
+                    </div>
+                    <div>
+                        <label for="issue-book-id">Book ID *:</label>
+                        <input type="number" id="issue-book-id" required>
+                    </div>
+                    <div>
+                        <label for="issue-days">Loan Duration (days):</label>
+                        <input type="number" id="issue-days" value="14" min="1">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button onclick="issueBook()" class="btn btn-primary">Issue Book</button>
+                    <button onclick="hideIssueBookForm()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Return Book Form -->
+            <div id="return-book-form" class="form-card" style="display: none;">
+                <h3>Return Book</h3>
+                <div class="form-grid">
+                    <div>
+                        <label for="return-loan-id">Loan ID *:</label>
+                        <input type="number" id="return-loan-id" required>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button onclick="returnBook()" class="btn btn-primary">Return Book</button>
+                    <button onclick="hideReturnBookForm()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+
+            <div id="loans-results" class="results"></div>
+        </div>
+
+        <!-- Reservations Tab -->
+        <div id="reservations-tab" class="tab-content">
+            <div class="section-header">
+                <h2>Reservations</h2>
+                <div class="button-group">
+                    <button onclick="getAllReservations()" class="btn btn-primary">Get All Reservations</button>
+                    <button onclick="showCreateReservationForm()" class="btn btn-success">Create Reservation</button>
+                </div>
+            </div>
+
+            <!-- Create Reservation Form -->
+            <div id="create-reservation-form" class="form-card" style="display: none;">
+                <h3>Create Reservation</h3>
+                <div class="form-grid">
+                    <div>
+                        <label for="reservation-member-id">Member ID *:</label>
+                        <input type="number" id="reservation-member-id" required>
+                    </div>
+                    <div>
+                        <label for="reservation-book-id">Book ID *:</label>
+                        <input type="number" id="reservation-book-id" required>
+                    </div>
+                    <div>
+                        <label for="reservation-days">Valid for (days):</label>
+                        <input type="number" id="reservation-days" value="14" min="1">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button onclick="createReservation()" class="btn btn-primary">Create Reservation</button>
+                    <button onclick="hideCreateReservationForm()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+
+            <div id="reservations-results" class="results"></div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="success" class="success" style="display: none;"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

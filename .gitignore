@@ -8,6 +8,7 @@ backend/tests/__pycache__
 backend/tests/integration/__pycache__
 backend/.coverage
 backend/.pytest_cache
+backend/htmlcov/
 frontend/.env
 backend/venv
 frontend/venv

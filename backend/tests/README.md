@@ -4,7 +4,10 @@ This directory contains comprehensive test cases for the library management syst
 
 ## Test Structure
 
-The test suite is organized into the following test files:
+The test suite is organized into **unit tests** and **integration tests**:
+
+### Unit Tests (in `tests/` directory)
+These tests use mocks and don't require a database connection.
 
 - **test_fr1_book_management.py**: Tests for adding, editing, and deleting book records
 - **test_fr2_member_management.py**: Tests for member registration and management
@@ -87,6 +90,28 @@ Run tests with coverage:
 ```bash
 python -m pytest --cov=library_system --cov-report=html
 ```
+
+### Integration Tests (in `tests/integration/` directory)
+Integration tests use a real database connection and test multiple components working together.
+
+**Setup for integration tests:**
+1. Set environment variables for test database:
+   ```bash
+   export SUPABASE_TEST_URL=your_test_supabase_url
+   export SUPABASE_TEST_KEY=your_test_supabase_key
+   ```
+
+2. Run integration tests:
+   ```bash
+   python -m pytest tests/integration/ -m integration
+   ```
+
+3. Skip integration tests (run only unit tests):
+   ```bash
+   python -m pytest tests/ -m "not integration"
+   ```
+
+See `tests/integration/README.md` for detailed integration test documentation.
 
 ## Test Fixtures
 

@@ -5,6 +5,7 @@ backend/library_system/services/__pycache__/
 backend/library_system/utils/__pycache__/
 backend/library_system/database/__pycache__/
 backend/tests/__pycache__
+backend/tests/integration/__pycache__
 backend/.coverage
 backend/.pytest_cache
 frontend/.env

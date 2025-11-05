@@ -1,4 +1,4 @@
-# Library Management System
+# Pytesting Library Management System
 
 A comprehensive library management system with Python backend and web frontend for managing books, members, loans, and reservations.
 
